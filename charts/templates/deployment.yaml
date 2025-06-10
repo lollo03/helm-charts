@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "photoprism.fullname" . }}
+  labels:
+    {{- include "photoprism.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "photoprism.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "photoprism.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 2342
+              protocol: TCP
+          env:
+            # --- Core PhotoPrism Configuration ---
+            - name: PHOTOPRISM_ADMIN_PASSWORD
+              value: {{ .Values.config.adminPassword | quote }}
+            - name: PHOTOPRISM_READONLY
+              value: {{ .Values.config.readOnly | quote }}
+            - name: PHOTOPRISM_SITE_URL
+            {{- if .Values.config.siteUrl }}
+              value: {{ .Values.config.siteUrl | quote }}
+            {{- else if .Values.ingress.enabled }}
+              value: "http{{ if .Values.ingress.tls }}s{{ end }}://{{ index .Values.ingress.hosts 0 "host" }}"
+            {{- else }}
+              value: "http://localhost:2342"
+            {{- end }}
+            - name: PHOTOPRISM_ORIGINALS_PATH
+              value: "/photoprism/originals"
+            - name: PHOTOPRISM_STORAGE_PATH
+              value: "/photoprism/storage"
+            
+
+            # --- Extra Environment Variables ---
+            {{- with .Values.extraEnv }}
+            {{- range $key, $val := . }}
+            - name: {{ $key }}
+              value: {{ $val | quote }}
+            {{- end }}
+            {{- end }}
+          
+          {{- if .Values.persistence.enabled }}
+          volumeMounts:
+            - name: originals
+              mountPath: /photoprism/originals
+            - name: storage
+              mountPath: /photoprism/storage
+          {{- end }}
+          
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+
+      {{- if .Values.persistence.enabled }}
+      volumes:
+        - name: originals
+          persistentVolumeClaim:
+            claimName: {{ include "photoprism.fullname" . }}-originals
+        - name: storage
+          persistentVolumeClaim:
+            claimName: {{ include "photoprism.fullname" . }}-storage
+      {{- end }}

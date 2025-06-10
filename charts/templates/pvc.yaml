@@ -1,0 +1,33 @@
+{{- if .Values.persistence.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "photoprism.fullname" . }}-originals
+  labels:
+    {{- include "photoprism.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    {{- toYaml .Values.persistence.originals.accessModes | nindent 4 }}
+  resources:
+    requests:
+      storage: {{ .Values.persistence.originals.size }}
+  {{- if .Values.persistence.storageClassName }}
+  storageClassName: {{ .Values.persistence.storageClassName }}
+  {{- end }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "photoprism.fullname" . }}-storage
+  labels:
+    {{- include "photoprism.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    {{- toYaml .Values.persistence.storage.accessModes | nindent 4 }}
+  resources:
+    requests:
+      storage: {{ .Values.persistence.storage.size }}
+  {{- if .Values.persistence.storageClassName }}
+  storageClassName: {{ .Values.persistence.storageClassName }}
+  {{- end }}
+{{- end }}

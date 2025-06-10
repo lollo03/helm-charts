@@ -1,0 +1,10 @@
+apiVersion: v2
+name: photoprism
+description: A Helm chart for deploying the PhotoPrism personal photo management application.
+type: application
+
+# This is the chart version.
+version: 0.1.0
+
+# This is the version of the application being deployed.
+appVersion: "250426"
