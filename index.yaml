@@ -1,0 +1,15 @@
+apiVersion: v1
+entries:
+  photoprism:
+  - apiVersion: v2
+    appVersion: "250426"
+    created: "2025-06-10T14:19:38.170563918Z"
+    description: A Helm chart for deploying the PhotoPrism personal photo management
+      application.
+    digest: c6fd94f709d1ec1196b9fa29b8826453609ef2ecb1d7ad23de2f3284abbd1f0e
+    name: photoprism
+    type: application
+    urls:
+    - https://github.com/lollo03/helm-charts/releases/download/photoprism-0.1.0/photoprism-0.1.0.tgz
+    version: 0.1.0
+generated: "2025-06-10T14:19:38.170568767Z"
